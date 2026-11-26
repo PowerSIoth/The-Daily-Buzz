@@ -592,6 +592,7 @@ footer {
 
 .week-head {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
@@ -604,8 +605,25 @@ footer {
 
 .week-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+}
+
+.week.is-complete .week-head strong {
+  color: var(--green);
+  font-size: 15px;
+}
+
+.week-actions .primary {
+  min-width: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.week.is-complete #copyWeek {
+  padding: 7px 0;
+  font-size: 12px;
 }
 
 .week-grid {
@@ -1145,17 +1163,24 @@ footer {
   display: none;
 }
 
+#extrasDialog[open] {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin: 0;
+  transform: translate(-50%, -50%);
+}
+
 #extrasDialog::backdrop {
   background: #263b356b;
   backdrop-filter: blur(2px);
 }
 
 #extrasDialog.dialog-fallback {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  margin: 0;
-  transform: translate(-50%, -50%);
   z-index: 10;
 }
 
@@ -1166,23 +1191,26 @@ footer {
   gap: 12px;
 }
 
-.extras-head h2, .extras-head h3 {
+.extras-head h2 {
   margin: 0;
 }
 
 .extras-head, .extras-foot {
   padding: 17px 22px;
+  flex-shrink: 0;
 }
 
 .extras-body {
   padding: 0 22px;
+  min-height: 0;
   max-height: 65vh;
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
-.extras-body section {
+.extras-body > section, .extras-body > details {
   border-top: 1px solid #dce3d5;
-  padding: 15px 0;
+  padding: 12px 0;
 }
 
 .extras-body h3 {
@@ -1190,16 +1218,20 @@ footer {
   margin: 0 0 10px;
 }
 
-.extras-body .extras-head {
-  padding: 0;
-}
-
-.extra-line, .extra-form {
+.extra-line, .extra-form, .extra-toolbar {
   display: flex;
   align-items: center;
   gap: 8px;
   justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.extra-toolbar {
+  margin: 10px 0;
+}
+
+.extra-toolbar .hint {
+  margin: 0;
 }
 
 .extra-form input {
@@ -1227,8 +1259,40 @@ footer {
   border-bottom: 1px solid #e7eadf;
 }
 
-.extra-item span:first-child {
+.extra-item > span, .extra-item > div {
+  min-width: 0;
+  word-break: break-word;
   overflow-wrap: anywhere;
+}
+
+.event-group h4 {
+  margin: 14px 0 4px;
+  color: var(--green);
+  font-size: 13px;
+}
+
+.event-group .hint {
+  margin: 4px 0;
+}
+
+.event-name, .event-effect {
+  display: block;
+}
+
+.event-name {
+  font-weight: 650;
+}
+
+.event-effect {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.event-remove {
+  flex: none;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 .extras-foot {
@@ -1239,16 +1303,25 @@ footer {
 
 .extras-body details {
   font-size: 13px;
-  margin-top: 10px;
 }
 
 .extras-body summary {
   cursor: pointer;
 }
 
+.extras-body > details > summary {
+  font-size: 15px;
+  font-weight: 800;
+  padding: 3px 0;
+}
+
+.extras-body .hint:empty {
+  display: none;
+}
+
 /* Presentation view */
 .presentation .layout {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .presentation .panel {
@@ -1328,7 +1401,7 @@ footer {
   }
 
   .layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .panel {
@@ -1460,6 +1533,10 @@ footer {
     padding: 12px 14px;
   }
 
+  .extra-form input {
+    flex-basis: 100%;
+  }
+
   #extras {
     font-size: 12px;
   }
@@ -1542,8 +1619,6 @@ footer {
           <input type="range" id="durationSlider" min="3" max="30" step="1" value="5" aria-valuetext="5 seconds">
           <div class="duration-scale" aria-hidden="true"><span>3 s</span><span>30 s</span></div>
         </div>
-        <label class="setting-check"><input type="checkbox" id="sound"> Sound effects</label>
-        <label class="setting-check"><input type="checkbox" id="events" checked> Subtle race events</label>
         <p class="privacy" id="privacy">Names, preferences and weekly lineup stay in this browser. No ads or tracking.</p>
       </aside>
 
@@ -1560,8 +1635,8 @@ footer {
           <div class="week-head">
             <strong id="weekTitle">Next week’s Daily hosts</strong>
             <div class="week-actions">
-              <button type="button" class="linkbtn" id="copyWeek">Copy lineup</button>
-              <button type="button" class="linkbtn" id="newWeek">New draw</button>
+              <button type="button" class="linkbtn" id="copyWeek" hidden>Copy lineup</button>
+              <button type="button" class="linkbtn" id="newWeek" hidden>Reset lineup</button>
             </div>
           </div>
           <div class="week-grid" id="weekGrid"></div>
@@ -1621,7 +1696,7 @@ footer {
 
     <footer>
       <span>Made for the TestBees 🐝</span>
-      <span>v1.0 · No ads. Just bees.</span>
+      <span>v1.2 · No ads. Just bees.</span>
     </footer>
   </div>
 
@@ -1647,13 +1722,15 @@ footer {
             <option value="winter">Winter wonderland</option>
           </select>
         </label>
-        <label class="setting-check"><input id="photoToggle" type="checkbox"> Photo finish for close races</label>
-        <label class="setting-check"><input id="rareToggle" type="checkbox"> Rare surprise events</label>
-        <p class="hint">Surprises replace a regular event, never add a second one.</p>
+        <label class="setting-check"><input type="checkbox" id="sound"> Sound effects</label>
+        <label class="setting-check"><input type="checkbox" id="events" checked> Race events</label>
       </section>
-      <section>
-        <h3>Custom race events</h3>
-        <p class="hint">Optional. Add an event with a slowdown or boost.</p>
+      <details id="eventManager">
+        <summary>Manage race events</summary>
+        <div class="extra-toolbar">
+          <p id="eventCount" class="hint" role="status"></p>
+          <button class="ghost" type="button" id="restoreEvents">Restore default events</button>
+        </div>
         <form id="customForm" class="extra-form">
           <input type="text" id="customText" maxlength="36" required
                  placeholder="Event name" aria-label="Event name">
@@ -1661,23 +1738,34 @@ footer {
             <option value="slow">Slowdown</option>
             <option value="boost">Boost</option>
           </select>
-          <button class="ghost" type="submit">Add</button>
+          <button class="ghost" type="submit">Add event</button>
         </form>
-        <div id="customList"></div>
         <p id="customNotice" class="hint" role="status"></p>
-      </section>
-      <section>
-        <div class="extras-head">
-          <h3>Hall of Fame</h3>
+        <div id="eventList"></div>
+      </details>
+      <details id="advancedSettings">
+        <summary>Advanced settings</summary>
+        <label class="setting-check">
+          <input id="repeatToggle" type="checkbox" aria-describedby="repeatHint">
+          Allow repeat winners
+        </label>
+        <p class="hint" id="repeatHint">Previous winners remain eligible for the remaining races of the week.</p>
+        <p class="hint" id="repeatWeekNote" hidden>Current assignments are kept. Changes apply to the remaining races.</p>
+        <label class="setting-check"><input id="photoToggle" type="checkbox"> Photo finish for close races</label>
+        <label class="setting-check"><input id="rareToggle" type="checkbox"> Rare surprise events</label>
+      </details>
+      <details id="hallOfFame">
+        <summary>Hall of Fame</summary>
+        <div class="extra-toolbar">
+          <p class="hint" id="historySummary"></p>
           <button type="button" class="linkbtn" id="clearHistory">Clear history</button>
         </div>
-        <p class="hint" id="historySummary"></p>
         <div id="historyList"></div>
         <details id="historyDetails">
           <summary>Past weekly lineups</summary>
           <div id="historyWeeks"></div>
         </details>
-      </section>
+      </details>
     </div>
     <div class="extras-foot"><button type="button" class="primary" id="doneExtras">Done</button></div>
   </dialog>
@@ -1718,6 +1806,7 @@ footer {
   const DEFAULT_RACE_SECONDS = 5;
   const MAX_PARTICIPANTS = 40;
   const MAX_CUSTOM_EVENTS = 20;
+  const MAX_EVENT_NAME_LENGTH = 36;
   const MAX_HISTORY_WEEKS = 260;
   const AUTO_DRAW_DELAY_MS = 1800;
 
@@ -1728,27 +1817,42 @@ footer {
     winter: { name: 'WINTER WONDERLAND', flowers: '❄ ❅ ❄' },
   };
   const SEASONS = ['auto', ...Object.keys(SCENERY)];
-  const EVENT_TYPES = ['slow', 'boost'];
+  const CUSTOM_EVENT_SPEEDS = new Map([['slow', .08], ['boost', 2.35]]);
+  // The IDs are part of the saved data, even if a display name changes.
   const RACE_EVENTS = [
-    { text: 'Bug detected!', speed: .18 }, { text: 'Debugging…', speed: .10 },
-    { text: 'Coffee break', speed: .025 }, { text: 'Honey boost!', speed: 2.25 },
-    { text: 'All tests passed!', speed: 1.95 }, { text: 'Performance boost', speed: 2.4 },
-    { text: 'Build failed!', speed: .08 }, { text: 'Merge conflict!', speed: .12 },
-    { text: 'Still compiling…', speed: .06 }, { text: 'Lost Wi-Fi!', speed: .10 },
-    { text: 'Reboot required', speed: .035 }, { text: 'Flaky test!', speed: .20 },
-    { text: 'Meeting invite!', speed: .12 }, { text: 'Wrong branch!', speed: .10 },
-    { text: 'Flower stop', speed: .045 }, { text: 'Headwind!', speed: .22 },
-    { text: 'Bug fixed!', speed: 2.15 }, { text: 'Build succeeded!', speed: 2.25 },
-    { text: 'Cache hit!', speed: 2.45 }, { text: 'LGTM!', speed: 2.1 },
-    { text: 'Friday feeling!', speed: 2.35 }, { text: 'Extra espresso!', speed: 2.5 },
-    { text: 'Tailwind!', speed: 2.2 }, { text: 'Turbo wings!', speed: 2.4 },
+    { id: 'bug-detected', text: 'Bug detected!', speed: .18 },
+    { id: 'debugging', text: 'Debugging…', speed: .10 },
+    { id: 'coffee-break', text: 'Coffee break', speed: .025 },
+    { id: 'honey-boost', text: 'Honey boost!', speed: 2.25 },
+    { id: 'all-tests-passed', text: 'All tests passed!', speed: 1.95 },
+    { id: 'performance-boost', text: 'Performance boost', speed: 2.4 },
+    { id: 'build-failed', text: 'Build failed!', speed: .08 },
+    { id: 'merge-conflict', text: 'Merge conflict!', speed: .12 },
+    { id: 'still-compiling', text: 'Still compiling…', speed: .06 },
+    { id: 'lost-wifi', text: 'Lost Wi-Fi!', speed: .10 },
+    { id: 'reboot-required', text: 'Reboot required', speed: .035 },
+    { id: 'flaky-test', text: 'Flaky test!', speed: .20 },
+    { id: 'meeting-invite', text: 'Meeting invite!', speed: .12 },
+    { id: 'wrong-branch', text: 'Wrong branch!', speed: .10 },
+    { id: 'flower-stop', text: 'Flower stop', speed: .045 },
+    { id: 'headwind', text: 'Headwind!', speed: .22 },
+    { id: 'bug-fixed', text: 'Bug fixed!', speed: 2.15 },
+    { id: 'build-succeeded', text: 'Build succeeded!', speed: 2.25 },
+    { id: 'cache-hit', text: 'Cache hit!', speed: 2.45 },
+    { id: 'lgtm', text: 'LGTM!', speed: 2.1 },
+    { id: 'friday-feeling', text: 'Friday feeling!', speed: 2.35 },
+    { id: 'extra-espresso', text: 'Extra espresso!', speed: 2.5 },
+    { id: 'tailwind', text: 'Tailwind!', speed: 2.2 },
+    { id: 'turbo-wings', text: 'Turbo wings!', speed: 2.4 },
   ];
   const RARE_EVENTS = [
-    { text: '🐝 Queen’s orders!', speed: .015 },
-    { text: '🚀 Warp drive!', speed: 2.9 },
-    { text: '🛸 UFO sighting!', speed: .035 },
-    { text: '🍯 Golden honey!', speed: 2.8 },
+    { id: 'queen-orders', text: '🐝 Queen’s orders!', speed: .015 },
+    { id: 'warp-drive', text: '🚀 Warp drive!', speed: 2.9 },
+    { id: 'ufo-sighting', text: '🛸 UFO sighting!', speed: .035 },
+    { id: 'golden-honey', text: '🍯 Golden honey!', speed: 2.8 },
   ];
+  const DEFAULT_EVENT_IDS = new Set(RACE_EVENTS.concat(RARE_EVENTS).map(event => event.id));
+  const DEFAULT_EVENT_NAMES = new Set(RACE_EVENTS.concat(RARE_EVENTS).map(event => comparableName(event.text)));
 
   // Bee artwork is made from inline SVG so every variant works offline.
   const BEE_VARIANTS = [
@@ -1864,11 +1968,13 @@ footer {
       mode: 'weekly',
       sound: false,
       events: true,
+      allowRepeatWinners: false,
       week: [],
       season: 'auto',
       photo: true,
       rare: true,
       custom: [],
+      excludedEventIds: [],
       history: [],
     };
   }
@@ -1907,13 +2013,9 @@ footer {
   function readLineup(savedLineup) {
     if (!Array.isArray(savedLineup)) return [];
     const lineup = [];
-    const names = new Set();
-    const ids = new Set();
     for (const host of savedLineup.slice(0, WEEKDAYS.length)) {
       // Entries are positional. Stop at the first invalid day to preserve weekday assignments.
-      if (!hasIdentity(host) || ids.has(host.id) || names.has(comparableName(host.name))) break;
-      ids.add(host.id);
-      names.add(comparableName(host.name));
+      if (!hasIdentity(host)) break;
       lineup.push({ id: host.id, name: host.name });
     }
     return lineup;
@@ -1921,11 +2023,28 @@ footer {
 
   function readCustomEvents(savedEvents) {
     if (!Array.isArray(savedEvents)) return [];
-    return savedEvents
+    const custom = savedEvents
       .filter(event => event && typeof event.text === 'string' && event.text.trim() &&
-        event.text.length <= 36 && EVENT_TYPES.includes(event.type))
-      .slice(0, MAX_CUSTOM_EVENTS)
-      .map(event => ({ text: event.text.trim(), type: event.type }));
+        event.text.length <= MAX_EVENT_NAME_LENGTH && CUSTOM_EVENT_SPEEDS.has(event.type))
+      .slice(0, MAX_CUSTOM_EVENTS);
+    const originalNames = new Set(custom.map(event => comparableName(event.text)));
+    const usedNames = new Set(DEFAULT_EVENT_NAMES);
+    return custom.map(event => {
+      const original = event.text.trim();
+      let text = original;
+      // Older releases allowed custom events to share a name with an Easter egg.
+      if (usedNames.has(comparableName(text))) {
+        let number = 1;
+        do {
+          const suffix = number === 1 ? ' (custom)' : ' (custom ' + number + ')';
+          const prefix = original.slice(0, MAX_EVENT_NAME_LENGTH - suffix.length).replace(/[\uD800-\uDBFF]$/, '').trim();
+          text = prefix + suffix;
+          number++;
+        } while (usedNames.has(comparableName(text)) || originalNames.has(comparableName(text)));
+      }
+      usedNames.add(comparableName(text));
+      return { text, type: event.type };
+    });
   }
 
   function readHistory(savedHistory) {
@@ -1968,11 +2087,15 @@ footer {
     restored.mode = saved.mode === 'single' ? 'single' : 'weekly';
     restored.sound = saved.sound === true;
     restored.events = saved.events !== false;
+    restored.allowRepeatWinners = saved.allowRepeatWinners === true;
     restored.week = readLineup(saved.week);
     restored.season = SEASONS.includes(saved.season) ? saved.season : 'auto';
     restored.photo = saved.photo !== false;
     restored.rare = saved.rare !== false;
     restored.custom = readCustomEvents(saved.custom);
+    if (Array.isArray(saved.excludedEventIds)) {
+      restored.excludedEventIds = [...new Set(saved.excludedEventIds.filter(id => DEFAULT_EVENT_IDS.has(id)))];
+    }
     restored.history = readHistory(saved.history);
     return restored;
   }
@@ -2001,13 +2124,17 @@ footer {
     return state.mode === 'weekly';
   }
 
-  function assignedDay(participant) {
-    return state.week.findIndex(host =>
-      host.id === participant.id || comparableName(host.name) === comparableName(participant.name));
+  function assignedDays(participant) {
+    const name = comparableName(participant.name);
+    return WEEKDAYS.filter((day, index) => {
+      const host = state.week[index];
+      return host && (host.id === participant.id || comparableName(host.name) === name);
+    });
   }
 
   function eligibleParticipants() {
-    return state.people.filter(person => person.active && (!isWeeklyMode() || assignedDay(person) === -1));
+    const excludeWinners = isWeeklyMode() && !state.allowRepeatWinners;
+    return state.people.filter(person => person.active && (!excludeWinners || !assignedDays(person).length));
   }
 
   function isWeekComplete() {
@@ -2027,7 +2154,8 @@ footer {
   }
 
   function canFillWeek(eligibleCount) {
-    return isWeeklyMode() && !isWeekComplete() && eligibleCount >= WEEKDAYS.length - state.week.length;
+    const required = state.allowRepeatWinners ? 1 : WEEKDAYS.length - state.week.length;
+    return isWeeklyMode() && !isWeekComplete() && eligibleCount >= required;
   }
 
   function isNameTaken(name, ignoreId) {
@@ -2139,9 +2267,11 @@ footer {
     }
 
     // Keep existing rows so an inline edit preserves focus and pending clicks on other controls.
+    const weekly = isWeeklyMode();
     state.people.forEach((person, index) => {
-      const day = assignedDay(person);
-      const excluded = isWeeklyMode() && day !== -1;
+      const days = assignedDays(person);
+      const assigned = days.length > 0;
+      const excluded = weekly && assigned && !state.allowRepeatWinners;
       const row = rosterRows.get(person.id) || createRosterRow(person);
       row.element.classList.toggle('inactive', !person.active);
       row.element.classList.toggle('assigned', excluded);
@@ -2155,12 +2285,15 @@ footer {
       }
       row.appearance.setAttribute('aria-label', 'Change bee appearance for ' + person.name);
       if (document.activeElement !== row.name) row.name.value = person.name;
-      row.name.disabled = row.remove.disabled = busy || day !== -1;
+      row.name.disabled = busy || (assigned && (!weekly || !state.allowRepeatWinners));
+      row.name.readOnly = assigned;
+      row.remove.disabled = busy || assigned;
       row.name.setAttribute('aria-label', 'Participant ' + (index + 1) + ' name');
       row.remove.setAttribute('aria-label', 'Remove ' + person.name);
-      row.remove.hidden = excluded;
-      row.assignment.hidden = !excluded;
-      row.assignment.textContent = excluded ? WEEKDAYS[day].slice(0, 3) : '';
+      row.remove.hidden = weekly && assigned;
+      row.assignment.hidden = !weekly || !assigned;
+      row.assignment.textContent = days.length > 2 ? days.length + ' days' : days.map(day => day.slice(0, 3)).join(' · ');
+      row.assignment.title = days.join(', ');
     });
 
     byId('count').textContent = eligibleCount + ' ready';
@@ -2201,7 +2334,12 @@ footer {
   }
 
   function renderWeek(eligibleCount, busy) {
-    byId('week').hidden = !isWeeklyMode();
+    const week = byId('week');
+    const complete = isWeekComplete();
+    const hasAssignments = state.week.length > 0;
+    week.hidden = !isWeeklyMode();
+    week.classList.toggle('is-complete', complete);
+    byId('weekTitle').textContent = complete ? 'Weekly lineup complete!' : 'Next week’s Daily hosts';
     const grid = byId('weekGrid');
     const fragment = document.createDocumentFragment();
     WEEKDAYS.forEach((day, index) => {
@@ -2218,16 +2356,24 @@ footer {
     grid.textContent = '';
     grid.appendChild(fragment);
 
-    let note = 'All five hosts selected. Ready for next week!';
-    if (!isWeekComplete()) {
-      note = state.week.length + ' of 5 selected · Winners automatically sit out remaining races.';
-      if (eligibleCount < WEEKDAYS.length - state.week.length) {
+    let note = 'All five weekdays are assigned.';
+    if (!complete) {
+      const rule = state.allowRepeatWinners ? 'Previous winners remain eligible.' :
+        'Winners automatically sit out remaining races.';
+      note = state.week.length + ' of 5 selected · ' + rule;
+      if (!canFillWeek(eligibleCount)) {
         note += ' Not enough eligible bees to fill all remaining days.';
       }
     }
     byId('weekNote').textContent = note;
     byId('manualCopy').hidden = true;
-    byId('newWeek').disabled = byId('copyWeek').disabled = busy || state.week.length === 0;
+    const newWeek = byId('newWeek');
+    const copy = byId('copyWeek');
+    newWeek.hidden = copy.hidden = !hasAssignments;
+    newWeek.disabled = copy.disabled = busy || !hasAssignments;
+    newWeek.textContent = complete ? 'New weekly draw' : 'Reset lineup';
+    newWeek.classList.toggle('primary', complete);
+    newWeek.classList.toggle('linkbtn', !complete);
   }
 
   function renderModeButton(id, selected, busy) {
@@ -2240,14 +2386,18 @@ footer {
   function renderControls(eligibleCount = eligibleParticipants().length) {
     const busy = isRaceBusy();
     const weeklyMode = isWeeklyMode();
+    const complete = isWeekComplete();
     const start = byId('start');
-    start.disabled = !canStartRace(eligibleCount);
-    if (isWeekComplete()) start.textContent = '✓ Week complete';
+    start.disabled = complete ? busy : !canStartRace(eligibleCount);
+    start.classList.toggle('primary', !complete);
+    start.classList.toggle('ghost', complete);
+    if (complete) start.textContent = 'New weekly draw';
     else if (weeklyMode) start.textContent = '▶ Race for ' + WEEKDAYS[state.week.length];
     else start.textContent = phase === 'finished' ? '▶ New race' : '▶ Start race';
 
     const reset = byId('reset');
     reset.disabled = phase === 'idle';
+    reset.hidden = complete;
     if (currentRace && currentRace.automatic && busy) reset.textContent = '■ Stop auto draw';
     else reset.textContent = busy ? '↺ Cancel race' : '↺ Reset track';
 
@@ -2255,8 +2405,10 @@ footer {
     renderModeButton('singleMode', !weeklyMode, busy);
     byId('sound').checked = state.sound;
     byId('events').checked = state.events;
-    byId('sound').disabled = byId('events').disabled = busy;
-    byId('autoWeek').hidden = !weeklyMode;
+    byId('repeatToggle').checked = state.allowRepeatWinners;
+    byId('sound').disabled = byId('events').disabled = byId('repeatToggle').disabled = busy;
+    byId('repeatWeekNote').hidden = !state.week.length || state.week.length === WEEKDAYS.length;
+    byId('autoWeek').hidden = !weeklyMode || complete;
     byId('autoWeek').disabled = busy || !canFillWeek(eligibleCount);
     byId('extras').disabled = busy;
 
@@ -2289,11 +2441,23 @@ footer {
     return fraction * fraction * (3 - 2 * fraction);
   }
 
+  function raceEventPools() {
+    const excluded = new Set(state.excludedEventIds);
+    const custom = state.custom.map(event => ({ text: event.text, speed: CUSTOM_EVENT_SPEEDS.get(event.type) }));
+    return {
+      regular: RACE_EVENTS.filter(event => !excluded.has(event.id)).concat(custom),
+      rare: RARE_EVENTS.filter(event => !excluded.has(event.id)),
+    };
+  }
+
   function pickRaceEvent(duration) {
+    const { regular, rare } = raceEventPools();
+    const rareAvailable = state.rare && rare.length > 0;
+    if (!regular.length && !rareAvailable) return null;
+
     const width = Math.min(.24, Math.max(.075, 1.15 / duration));
     const start = .20 + Math.random() * .12;
-    const custom = state.custom.map(event => ({ text: event.text, speed: event.type === 'slow' ? .08 : 2.35 }));
-    const pool = state.rare && Math.random() < .05 ? RARE_EVENTS : RACE_EVENTS.concat(custom);
+    const pool = rareAvailable && (!regular.length || Math.random() < .05) ? rare : regular;
     const chosen = pool[drawIndex(pool.length)];
     return { text: chosen.text, speed: chosen.speed, start, end: start + width, ramp: width * .15 };
   }
@@ -2469,7 +2633,7 @@ footer {
     renderLanes(complete ? [] : eligible);
     let title = 'Race to the hive';
     if (isWeeklyMode()) {
-      title = complete ? 'Five Daily hosts selected' : 'Race for ' + WEEKDAYS[state.week.length];
+      title = complete ? 'Five weekdays assigned' : 'Race for ' + WEEKDAYS[state.week.length];
     }
     byId('raceTitle').textContent = title;
     let note = 'Pick your bees and start the buzz.';
@@ -2501,7 +2665,7 @@ footer {
     if (state.events && lanes.length > 1) {
       const lane = lanes[drawIndex(lanes.length)];
       lane.event = pickRaceEvent(race.duration);
-      lane.bubble.textContent = lane.event.text;
+      if (lane.event) lane.bubble.textContent = lane.event.text;
     }
     planRace(race);
     measureTracks();
@@ -2667,10 +2831,11 @@ footer {
   }
 
   function resetWeeklyLineup() {
-    if (isRaceBusy() || !state.week.length) return;
+    if (!isWeeklyMode() || isRaceBusy() || isExtrasOpen() || !state.week.length) return;
     if (window.confirm('Clear the current weekly lineup and make all selected bees eligible again?')) {
       state.week = [];
       saveSetupChange();
+      if (!byId('start').disabled) byId('start').focus();
     }
   }
 
@@ -2797,44 +2962,93 @@ footer {
     }
   }
 
-  function renderCustomEvents() {
-    const list = byId('customList');
+  function renderEventPool() {
+    const { regular, rare } = raceEventPools();
+    const count = state.events ? regular.length + (state.rare ? rare.length : 0) : 0;
+    let status = count + (count === 1 ? ' active event' : ' active events');
+    if (!state.events) status += ' · Race events are off.';
+    else if (!state.rare) status += ' · Rare surprises are off.';
+    byId('eventCount').textContent = status;
+    byId('restoreEvents').disabled = state.excludedEventIds.length === 0;
+
+    const list = byId('eventList');
     list.textContent = '';
-    state.custom.forEach((event, index) => {
-      const row = textElement('div', '', 'extra-item');
-      row.appendChild(textElement('span', event.text + ' · ' + event.type));
-      const remove = textElement('button', 'Remove', 'linkbtn');
-      remove.type = 'button';
-      remove.setAttribute('aria-label', 'Remove event ' + event.text);
-      remove.addEventListener('click', () => {
-        state.custom.splice(index, 1);
-        byId('customNotice').textContent = '';
-        saveState();
-        renderCustomEvents();
-        byId('customText').focus();
+    const groups = [
+      { name: 'Slowdown', events: regular.filter(event => event.speed < 1) },
+      { name: 'Boost', events: regular.filter(event => event.speed > 1) },
+      { name: 'Rare Events', events: rare },
+    ];
+    for (const group of groups) {
+      const section = textElement('div', '', 'event-group');
+      section.appendChild(textElement('h4', group.name));
+      if (!group.events.length) section.appendChild(textElement('p', 'No events in this group.', 'hint'));
+      group.events.forEach(event => {
+        const row = textElement('div', '', 'extra-item');
+        const description = document.createElement('div');
+        description.appendChild(textElement('span', event.text, 'event-name'));
+        const effect = event.speed < 1 ? 'Slowdown' : 'Boost';
+        const source = event.id ? '' : ' · Custom';
+        description.appendChild(textElement('span', effect + ' · ' + event.speed + '×' + source, 'event-effect'));
+        const remove = textElement('button', '×', 'remove event-remove');
+        remove.type = 'button';
+        remove.setAttribute('aria-label', 'Remove event ' + event.text);
+        remove.addEventListener('click', () => removeRaceEvent(event, remove));
+        row.appendChild(description);
+        row.appendChild(remove);
+        section.appendChild(row);
       });
-      row.appendChild(remove);
-      list.appendChild(row);
-    });
+      list.appendChild(section);
+    }
+  }
+
+  function saveEventChange(message) {
+    byId('customNotice').textContent = message;
+    saveState();
+    renderEventPool();
+  }
+
+  function removeRaceEvent(event, button) {
+    if (isRaceBusy()) return;
+    const list = byId('eventList');
+    const index = Array.from(list.querySelectorAll('button')).indexOf(button);
+    if (event.id) state.excludedEventIds = [...new Set(state.excludedEventIds.concat(event.id))];
+    else state.custom = state.custom.filter(item => item.text !== event.text);
+    saveEventChange('Event removed.');
+    const remaining = list.querySelectorAll('button');
+    const next = remaining[Math.min(index, remaining.length - 1)] || byId('restoreEvents');
+    (next.disabled ? byId('customText') : next).focus();
+  }
+
+  function restoreDefaultEvents() {
+    if (isRaceBusy() || !state.excludedEventIds.length) return;
+    state.excludedEventIds = [];
+    saveEventChange('Default events restored.');
+    byId('customText').focus();
   }
 
   function addCustomEvent(event) {
     event.preventDefault();
+    if (isRaceBusy()) return;
     const input = byId('customText');
     const text = input.value.trim();
     const type = byId('customType').value;
-    const exists = [...RACE_EVENTS, ...state.custom].some(item =>
-      comparableName(item.text) === comparableName(text));
-    if (!text || text.length > 36 || !EVENT_TYPES.includes(type) || exists ||
-        state.custom.length >= MAX_CUSTOM_EVENTS) {
-      byId('customNotice').textContent = 'Use a unique event name (maximum 20 custom events).';
+    const name = comparableName(text);
+    const notice = byId('customNotice');
+    if (!text || text.length > MAX_EVENT_NAME_LENGTH || !CUSTOM_EVENT_SPEEDS.has(type)) {
+      notice.textContent = 'Enter an event name of up to 36 characters and choose an effect.';
+      return;
+    }
+    if (DEFAULT_EVENT_NAMES.has(name) || state.custom.some(item => comparableName(item.text) === name)) {
+      notice.textContent = 'Choose a name that is different from the default and custom events.';
+      return;
+    }
+    if (state.custom.length >= MAX_CUSTOM_EVENTS) {
+      notice.textContent = 'The limit is 20 custom events. Remove one to add another.';
       return;
     }
     state.custom.push({ text, type });
     input.value = '';
-    byId('customNotice').textContent = 'Event added.';
-    saveState();
-    renderCustomEvents();
+    saveEventChange('Event added.');
   }
 
   function renderHistory() {
@@ -2878,7 +3092,7 @@ footer {
     byId('photoToggle').checked = state.photo;
     byId('rareToggle').checked = state.rare;
     byId('customNotice').textContent = '';
-    renderCustomEvents();
+    renderEventPool();
     renderHistory();
 
     const dialog = byId('extrasDialog');
@@ -2947,17 +3161,10 @@ footer {
       });
     }
     byId('durationSlider').addEventListener('input', changeDuration);
-    byId('sound').addEventListener('change', event => {
-      state.sound = event.target.checked;
-      saveState();
-      prepareAudio();
+    byId('start').addEventListener('click', () => {
+      if (isWeekComplete()) resetWeeklyLineup();
+      else startRace();
     });
-    byId('events').addEventListener('change', event => {
-      state.events = event.target.checked;
-      saveState();
-    });
-
-    byId('start').addEventListener('click', () => startRace());
     byId('autoWeek').addEventListener('click', () => startRace(true));
     byId('reset').addEventListener('click', () => {
       if (phase === 'auto-wait') stopAutomaticDraw();
@@ -2980,14 +3187,30 @@ footer {
       applyScenery();
       saveState();
     });
-    const toggles = { photoToggle: 'photo', rareToggle: 'rare' };
+    const toggles = {
+      sound: 'sound',
+      events: 'events',
+      repeatToggle: 'allowRepeatWinners',
+      photoToggle: 'photo',
+      rareToggle: 'rare',
+    };
     Object.keys(toggles).forEach(id => {
-      byId(id).addEventListener('change', event => {
-        state[toggles[id]] = event.target.checked;
-        saveState();
+      const key = toggles[id];
+      const checkbox = byId(id);
+      checkbox.addEventListener('change', () => {
+        if (isRaceBusy()) {
+          checkbox.checked = state[key];
+          return;
+        }
+        state[key] = checkbox.checked;
+        if (key === 'allowRepeatWinners' && isWeeklyMode()) saveSetupChange();
+        else saveState();
+        if (key === 'sound') prepareAudio();
+        if (key === 'events' || key === 'rare') renderEventPool();
       });
     });
     byId('customForm').addEventListener('submit', addCustomEvent);
+    byId('restoreEvents').addEventListener('click', restoreDefaultEvents);
     byId('clearHistory').addEventListener('click', () => {
       if (window.confirm('Clear all recorded weekly history? The current lineup will stay.')) {
         state.history = [];
