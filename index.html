@@ -702,8 +702,13 @@ footer {
   text-align: right;
 }
 
-/* Track, bees and race events */
+/* Honey Meadow, bees and race events */
 .course {
+  --hive-width: 62px;
+  --finish-inset: calc(var(--hive-width) / 2);
+  --racer-label-width: 146px;
+  --meadow-shade: #29492d26;
+  --meadow-ink: #304c32;
   position: relative;
   padding: 12px 15px 10px;
   min-height: 260px;
@@ -714,120 +719,100 @@ footer {
   background-repeat: no-repeat;
 }
 
+.course::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, #fffbe633, transparent 37%, var(--meadow-shade)),
+    radial-gradient(ellipse at 90% 15%, #ffe8a66b, transparent 50%);
+}
+
 .course-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   font-size: 10px;
-  color: #3d6145;
+  color: var(--meadow-ink);
   font-weight: 800;
-  letter-spacing: .15em;
-  padding: 1px 10px 7px;
+  letter-spacing: .12em;
+  padding-bottom: 4px;
 }
 
-.course-header span:last-child {
+.course-caption {
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: #fffdf2ed;
+}
+
+.hive-goal {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10px;
-}
-
-.course-header svg {
-  width: 37px;
-  height: 32px;
-}
-
-.lanes {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.lane {
-  height: 52px;
-  grid-template-columns: minmax(78px, 14%) minmax(0, 1fr);
-  height: clamp(42px,5.5vh,59px);
-  position: relative;
-  border: 1px solid #8ca86b80;
-  background: linear-gradient(90deg,#fffdf1ea 0%,#f7f8e6b8 19%,#f7f8e68c 85%,#f9edc9b8 100%);
-  border-radius: 9px;
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: clamp(78px,14%,140px) minmax(0,1fr);
-  align-items: center;
-  box-shadow: 0 1px 3px #405c3220;
-}
-
-.lane:nth-child(even) {
-  background: linear-gradient(90deg,#fffdf1e8,#eaf1d3a6 20%,#eaf1d38c 85%,#f9edc9b8);
-}
-
-.lane.winner {
-  border: 2px solid #d49b17;
-  background: #fff0ba;
-  border-color: #c18a19;
-}
-
-.lane-name {
-  padding: 0 7px 0 12px;
-  min-width: 0;
-  font-size: 12px;
-  line-height: 1.2;
-  font-weight: 750;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  gap: 6px;
   white-space: nowrap;
 }
 
-.lane-name small {
+.hive-goal svg {
   display: block;
-  color: #63835d;
-  font-size: 9px;
-  margin-bottom: 1px;
-  font-weight: 600;
+  width: var(--hive-width);
+  height: auto;
+  filter: drop-shadow(0 3px 2px #66451c52);
+}
+
+.lanes {
+  --lane-gap: 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  isolation: isolate;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #fffbea4d, #fffbea24 66%, #ffebaf52);
+}
+
+.lanes::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  right: var(--finish-inset);
+  transform: translateX(1px);
+  border-left: 2px dashed #845f32b8;
+  box-shadow: 1px 0 #fff5d7a8;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Each bee has a vertical slot to keep its name clear during overtakes. */
+.lane {
+  height: 45px;
+  height: clamp(41px, 5.4vh, 56px);
+}
+
+.lane + .lane {
+  margin-top: var(--lane-gap);
+}
+
+.lane:nth-child(4n + 1) {
+  --flight-offset: -3px;
+}
+
+.lane:nth-child(4n + 3) {
+  --flight-offset: 3px;
 }
 
 .track {
   height: 100%;
   position: relative;
-  margin-right: 14px;
-  min-width: 0;
-}
-
-.track::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 4px;
-  right: 3px;
-  border-top: 1px dashed #a6bd87;
-  border-color: #8ea36f70;
-}
-
-.track::after {
-  background: repeating-linear-gradient(#486a48 0 6px, #fff9e8 6px 12px);
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 12px;
-  background: repeating-conic-gradient(#486a48 0% 25%,#fff9e8 0% 50%) 0 0/12px 12px;
-  opacity: .85;
-}
-
-.startline {
-  position: absolute;
-  left: 4px;
-  top: 0;
-  bottom: 0;
-  border-left: 2px solid #a9c18c;
+  margin-left: calc(var(--racer-label-width) + 7px);
+  /* The racer finishes 7px before the track's right edge. */
+  margin-right: calc(var(--finish-inset) - 7px);
 }
 
 .racer {
   position: absolute;
   left: 7px;
-  top: 50%;
+  top: calc(50% + var(--flight-offset, 0px));
   width: 62px;
   height: 49px;
   transform: translate3d(0,-50%,0);
@@ -839,7 +824,37 @@ footer {
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 3px 1px #3a502833);
+  transform: scale(var(--bee-scale));
+  transform-origin: right center;
+  filter: drop-shadow(0 4px 2px #29452d52);
+}
+
+.racer-name {
+  position: absolute;
+  top: 65%;
+  right: calc(100% + 3px);
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: var(--racer-label-width);
+  padding: 3px 7px;
+  border: 1px solid #7f906b69;
+  border-radius: 6px;
+  background: #fffdf3;
+  color: #22392b;
+  box-shadow: 0 2px 4px #293d2a36;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lane.winner .racer-name {
+  border-color: #b5761e;
+  background: #ffedb1;
+  color: #493507;
+  box-shadow: 0 2px 7px #8d5d2f57;
 }
 
 .wing {
@@ -852,8 +867,8 @@ footer {
 }
 
 .racing .racer svg {
-  animation: bob .75s ease-in-out infinite alternate;
-  animation-delay: var(--delay,0s);
+  animation: hover-flight 1.35s ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
 }
 
 @keyframes flap {
@@ -862,20 +877,27 @@ footer {
   }
 }
 
-@keyframes bob {
+@keyframes hover-flight {
+  from {
+    transform: translateY(1px) scale(var(--bee-scale));
+  }
+
   to {
-    transform: translateY(-2px) rotate(-1.5deg);
+    transform: translateY(-3px) scale(var(--bee-scale));
   }
 }
 
 .event-bubble {
   position: absolute;
   left: 78%;
-  top: 0;
-  transform: none;
+  top: -2px;
+  width: max-content;
+  max-width: calc(var(--racer-label-width) + 12px);
   font-size: 10px;
   font-weight: 750;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #42563c;
   background: #fffdf0ed;
   border: 1px solid #c0cda4;
@@ -886,25 +908,9 @@ footer {
   box-shadow: 0 2px 5px #30442b20;
 }
 
-.event-bubble::after {
-  content: '';
-  position: absolute;
-  top: 45%;
-  right: 100%;
-  border: 3px solid transparent;
-  border-right-color: #c0cda4;
-}
-
 .event-bubble.flip {
   left: auto;
   right: 88%;
-}
-
-.event-bubble.flip::after {
-  left: 100%;
-  right: auto;
-  border-right-color: transparent;
-  border-left-color: #c0cda4;
 }
 
 .racer.boost::before {
@@ -932,7 +938,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   padding: 5px 9px 0;
-  color: #365a3c;
+  color: var(--meadow-ink);
   font-size: 10px;
   font-weight: 650;
   letter-spacing: .04em;
@@ -949,31 +955,18 @@ footer {
   display: grid;
   place-items: center;
   min-height: 265px;
-  color: #627a55;
+  color: var(--meadow-ink);
   text-align: center;
   padding: 25px;
 }
 
-.course[data-season="winter"] .lane {
-  background: #f8fcfbd0;
-  border-color: #9fbecb;
+.course[data-season="winter"] {
+  --meadow-shade: #32556926;
+  --meadow-ink: #2d4e60;
 }
 
-.course[data-season="winter"] .lane.winner {
-  background: #fff0ba;
-}
-
-.course[data-season="winter"] .course-header, .course[data-season="winter"] .flowerbed {
-  color: #36576c;
-}
-
-.course[data-season="autumn"] .lane {
-  background: #fff3d8c9;
-  border-color: #c0a471;
-}
-
-.course[data-season="autumn"] .lane.winner {
-  background: #fff0ba;
+.course[data-season="autumn"] {
+  --meadow-shade: #6f471e26;
 }
 
 /* Countdown, result and photo finish */
@@ -1266,14 +1259,22 @@ footer {
   max-width: 1550px;
 }
 
+.presentation .course {
+  --racer-label-width: 182px;
+}
+
 .presentation .lane {
-  height: 58px;
-  height: clamp(48px,6.2vh,70px);
+  height: 48px;
+  height: clamp(43px, 5.8vh, 60px);
 }
 
 .presentation .racer {
-  width: 70px;
-  height: 56px;
+  width: 68px;
+  height: 52px;
+}
+
+.presentation .racer-name {
+  font-size: 14px;
 }
 
 .presentation .offline {
@@ -1286,6 +1287,39 @@ footer {
 
 .presentation #extras {
   display: none;
+}
+
+@media (min-width: 821px) and (max-height: 780px) {
+  .presentation .course {
+    --hive-width: 52px;
+    padding-top: 8px;
+  }
+
+  .presentation .lanes {
+    --lane-gap: 3px;
+  }
+
+  .presentation .lane {
+    height: 35px;
+  }
+
+  .presentation .racer {
+    width: 56px;
+    height: 42px;
+  }
+
+  .presentation .racer-name {
+    top: calc(50% + 9px);
+    padding-block: 1px;
+    line-height: 1.1;
+  }
+
+  .presentation .event-bubble {
+    top: calc(50% - 16px);
+    padding-block: 1px;
+    font-size: 9px;
+    line-height: 1.2;
+  }
 }
 
 @media (max-width: 820px) {
@@ -1340,17 +1374,23 @@ footer {
     padding: 12px;
   }
 
-  .course {
+  .course, .presentation .course {
+    --hive-width: 48px;
+    --racer-label-width: 102px;
     padding: 8px;
   }
 
-  .lane {
-    height: 48px;
+  .lane, .presentation .lane {
+    height: 44px;
   }
 
-  .racer {
+  .racer, .presentation .racer {
     width: 53px;
     height: 44px;
+  }
+
+  .presentation .racer-name {
+    font-size: 12px;
   }
 
   .arena-bottom {
@@ -1400,6 +1440,10 @@ footer {
   *, *::before, *::after {
     animation-duration: .001s !important;
     transition: none !important;
+  }
+
+  .racing .racer svg, .racing .wing {
+    animation: none;
   }
 
   .confetti {
@@ -1527,9 +1571,9 @@ footer {
         <div class="progress" aria-hidden="true"><span id="progress"></span></div>
         <div class="course" id="course">
           <div class="course-header">
-            <span id="courseName">START · FLOWER MEADOW</span>
-            <span>
-              THE HIVE
+            <span class="course-caption" id="courseName">START · FLOWER MEADOW</span>
+            <span class="hive-goal">
+              <span class="course-caption">THE HIVE</span>
               <svg viewBox="0 0 42 34" aria-hidden="true">
                 <path d="M21 0v5" stroke="#6a643d" stroke-width="2"/>
                 <path d="M12 7 Q21 0 30 7 L34 12 Q40 17 36 23 Q40 30 29 33 H13 Q2 30 6 23 Q2 17 8 12Z"
@@ -1542,7 +1586,7 @@ footer {
           <div class="lanes" id="lanes"></div>
           <div class="flowerbed">
             <span class="flowers" aria-hidden="true">✿ ❀ ✿</span>
-            <span>Every bee has an equal chance.</span>
+            <span class="course-caption">Every bee has an equal chance.</span>
             <span class="flowers" aria-hidden="true">❀ ✿ ❀</span>
           </div>
           <div class="overlay" id="countdown" hidden>
@@ -1653,10 +1697,11 @@ footer {
   </template>
   <template id="laneTemplate">
     <div class="lane">
-      <div class="lane-name"><small></small><span></span></div>
       <div class="track">
-        <div class="startline" aria-hidden="true"></div>
-        <div class="racer"><span class="event-bubble" hidden></span></div>
+        <div class="racer">
+          <span class="racer-name"></span>
+          <span class="event-bubble" hidden></span>
+        </div>
       </div>
     </div>
   </template>
@@ -2352,13 +2397,14 @@ footer {
     }
 
     const fragment = document.createDocumentFragment();
+    const depthSteps = Math.max(1, participants.length - 1);
     const lanes = participants.map((person, index) => {
       const element = cloneTemplate('laneTemplate');
-      const label = element.querySelector('.lane-name');
-      label.title = person.name;
-      label.querySelector('small').textContent = String(index + 1).padStart(2, '0');
-      label.querySelector('span').textContent = person.name;
       const bee = element.querySelector('.racer');
+      const label = bee.querySelector('.racer-name');
+      label.textContent = person.name;
+      label.title = person.name;
+      bee.style.setProperty('--bee-scale', (0.94 + 0.1 * index / depthSteps).toFixed(2));
       bee.style.setProperty('--delay', (-index * .071) + 's');
       bee.insertAdjacentHTML('afterbegin', beeSvg(person.style));
       fragment.appendChild(element);

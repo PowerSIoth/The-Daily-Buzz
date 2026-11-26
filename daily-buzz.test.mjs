@@ -302,6 +302,27 @@ test('a 30-second race reaches the finish after the full 30 seconds', () => {
   assert.deepEqual(app.hosts(), ['Person 0']);
 });
 
+test('participant names travel with their bees and the winner keeps its label', () => {
+  const name = 'Alex & Sam – a longer TestBee name';
+  const people = [{ ...fiveParticipants[0], name }, fiveParticipants[1]];
+  const app = openApp({ saved: { people, duration: 3, mode: 'single', events: false } });
+  const labels = () => app.lanes().map(lane => lane.querySelector('.racer .racer-name'));
+  assert.deepEqual(labels().map(label => label.textContent), [name, people[1].name]);
+
+  app.click('start');
+  const label = labels()[0];
+  const racer = label.parent;
+  const startPosition = racer.style.transform;
+  app.advance(1400);
+  assert.notEqual(racer.style.transform, startPosition);
+  assert.equal(labels()[0], label);
+  assert.equal(label.title, name);
+
+  app.advance(2100);
+  assert.equal(app.lanes()[0].classList.contains('winner'), true);
+  assert.equal(labels()[0].textContent, app.text('winnerName'));
+});
+
 test('the automatic draw fills five unique weekdays and records one completed week', () => {
   const app = openApp({ saved: { people: fiveParticipants, duration: 3 } });
   app.click('autoWeek');
